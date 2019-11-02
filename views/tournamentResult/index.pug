@@ -32,7 +32,11 @@ block layout-content
       getData(); 
       $(function () {
         var socket = io();
-        socket.on('changeTournamentResult', function(data){
+        socket.on('updateTournamentResult', function(data){
+          $('#listTournaments div').remove();
+          data.forEach(addRow);
+        });
+        socket.on('insertTournamentResult', function(data){
           $('#listTournaments div').remove();
           data.forEach(addRow);
         });
