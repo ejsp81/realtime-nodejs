@@ -10,5 +10,10 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light
         a.nav-link(href='/tournament_standings') Tournament standings
       li.nav-item
         a.nav-link(href='/tournament_results') Tournament results
-      li.nav-item
-        a.nav-link(href='/events') Events
+      li.nav-item.dropdown
+        a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+          | Detail matchs
+        .dropdown-menu(aria-labelledby='navbarDropdown')
+          a.dropdown-item(href='/detail_matchs/admin/client') Client
+          a.dropdown-item(href='/detail_matchs/admin/admin') Admin
+          .dropdown-divider

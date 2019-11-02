@@ -61,24 +61,25 @@ team.watch().on('change', function(data){
 
 let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
 tournamentStanding.watch().on('change', function(data){
-  tournamentStanding.find({},(err, tournaments)=> {
+  tournamentStanding.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.log(err);
-    io.emit('changeTournamentStand', tournaments);
+    if (data.operationType=='update') {
+      io.emit('updateTournamentStand', tr);
+    }else if (data.operationType=='insert') {
+      io.emit('insertTournamentStand', tr);
+    }
   }).sort({total_points : -1}).populate('team');
   console.log(new Date(),'Hubo un cambio en la tabla tournament_standings');
 });
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
 tournamentResult.watch().on('change', function(data){
-  tournamentResult.findById(data.documentKey._id,(err, tournaments)=> {
+  tournamentResult.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {
-      io.emit('changeTournamentResult', tournaments);
+      io.emit('updateTournamentResult', tr);
     }else if (data.operationType=='insert') {
-      io.emit('insertTournamentResult', tournaments);
-    }
-    if(data.current_time == 90){
-      console.log(data.current_time);
+      io.emit('insertTournamentResult', tr);
     }
   }).sort({current_time : 1}).populate(['local_team','visitor_team']);
   console.log(new Date(),'Hubo un cambio en la tabla tournament_results');
@@ -103,7 +104,7 @@ function updateTimeMatch() {
     tournamentResult.updateMany({ is_playing: true }, { $inc: { current_time: 1 } }, (err, data)=> {if (err) console.error(err);})
     tournamentResult.updateMany({ is_playing: true, current_time: { $gte: 90 } }, { is_playing: false }, (err, data)=> {if (err) console.error(err);})
 }
-setInterval(updateTimeMatch, 10*1000);
+setInterval(updateTimeMatch, 60*1000);
 /******************************************************/
 
 http.listen(3000, function(){
