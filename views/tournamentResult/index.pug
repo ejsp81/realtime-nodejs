@@ -13,11 +13,13 @@ block layout-content
         .col-xs-12.col-sm-6
           .form-group
             label.control-label(for='local_team') Local
-            select#local_team.form-control(name='visitor_team')
+            select#local_team.form-control(name='local_team')
+              option
         .col-xs-12.col-sm-6
           .form-group
             label.control-label(for='visitor_team') Visitante
             select#visitor_team.form-control(name='visitor_team')
+              option
       .row
         .col-xs-12.col-sm-8
           .form-group
@@ -32,13 +34,14 @@ block layout-content
       getData(); 
       $(function () {
         var socket = io();
-        socket.on('updateTournamentResult', function(data){
-          $('#listTournaments div').remove();
-          data.forEach(addRow);
+        socket.on('updateTournamentResult', function(tr){
+          var match = $('.row-match#'+tr._id);
+          match.find('.currentTime').html(tr.current_time);
+          match.find('.goalLocal').html(tr.local_goals);
+          match.find('.goalVisitor').html(tr.visitor_goals);
         });
-        socket.on('insertTournamentResult', function(data){
-          $('#listTournaments div').remove();
-          data.forEach(addRow);
+        socket.on('insertTournamentResult', function(tr){
+          addRow(tr, false);
         });
 
         $('#frmCreate').submit(function(e) {
@@ -57,22 +60,39 @@ block layout-content
           });
         });
       });
-      function addRow(data){
-        $('#listTournaments').append(`<div class="row justify-content-center pb-3">
+
+      //Deshabilitar equipo en el select visitor_team
+      $('select#local_team').change(async function(){
+        $("select#visitor_team option").removeAttr('disabled');
+        var valSel = $(this).find('option:selected').val();
+        $('select#visitor_team option[value='+valSel+']').attr('disabled','disabled');
+      });
+      $('select#visitor_team').change(async function(){
+        $("select#local_team option").removeAttr('disabled');
+        var valSel = $(this).find('option:selected').val();
+        $('select#local_team option[value='+valSel+']').attr('disabled','disabled');
+      });
+
+      function addRow(data, append=true){
+        var rowHtml = `<div class="row row-match justify-content-center pb-3" id="${data._id}">
             <div class="col col-xs-2 text-center align-middle">
               <img src="${data.local_team.shield}" width="70px"/><br>
               ${data.local_team.name}
             </div>
             <div class="col-xs-auto text-center align-middle">
-              <h2>${data.local_goals} - ${data.visitor_goals}</h2>
-              <h4>min. ${data.current_time}</h4>
+              <h2><span class="goalLocal">${data.local_goals}</span> - <span class="goalVisitor">${data.visitor_goals}</span></h2>
+              <h4>min. <span class="currentTime">${data.current_time}</span></h4>
               <h6><span class="badge badge-`+(data.is_playing ? 'success">en vivo' : 'secondary">finalizado')+`</span></h6>
             </div>
             <div class="col col-xs-2 text-center align-middle">
               <img src="${data.visitor_team.shield}" width="70px"/><br>
               ${data.visitor_team.name}
             </div>
-          </div>`);
+          </div>`;
+        if(append)
+          $('#listTournaments').append(rowHtml);
+        else
+          $('#listTournaments').prepend(rowHtml);
       }
       function getData(){
         $.get('tournament_results/get', (data) => {

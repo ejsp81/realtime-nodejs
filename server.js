@@ -61,12 +61,12 @@ team.watch().on('change', function(data){
 
 let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
 tournamentStanding.watch().on('change', function(data){
-  tournamentStanding.findById(data.documentKey._id,(err, tournaments)=> {
+  tournamentStanding.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.log(err);
     if (data.operationType=='update') {
-      io.emit('updateTournamentStand', tournaments);
+      io.emit('updateTournamentStand', tr);
     }else if (data.operationType=='insert') {
-      io.emit('insertTournamentStand', tournaments);
+      io.emit('insertTournamentStand', tr);
     }
   }).sort({total_points : -1}).populate('team');
   console.log(new Date(),'Hubo un cambio en la tabla tournament_standings');
@@ -74,12 +74,12 @@ tournamentStanding.watch().on('change', function(data){
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
 tournamentResult.watch().on('change', function(data){
-  tournamentResult.findById(data.documentKey._id,(err, tournaments)=> {
+  tournamentResult.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {
-      io.emit('updateTournamentResult', tournaments);
+      io.emit('updateTournamentResult', tr);
     }else if (data.operationType=='insert') {
-      io.emit('insertTournamentResult', tournaments);
+      io.emit('insertTournamentResult', tr);
     }
   }).sort({current_time : 1}).populate(['local_team','visitor_team']);
   console.log(new Date(),'Hubo un cambio en la tabla tournament_results');
