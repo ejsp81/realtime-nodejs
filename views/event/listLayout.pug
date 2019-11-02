@@ -8,7 +8,7 @@ script.
       $('.listEvents').append(`
       <li style="width:50%">
         <div class="msj macro">
-        <div class="avatar"><img class="img-circle" style="width:80px;" src="${event.player.team.shield}" /></div>
+        <div class="avatar"><img class="img-circle" src="${event.player.team.shield}" /></div>
           <div class="text text-l">
             <p>${event.type_event}</p>
             <p>${event.player.name}</p>
@@ -25,7 +25,7 @@ script.
             <p>${event.player.name}</p>
             <p><small>Minuto: ${event.time}</small></p>
           </div>
-        <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" style="width:80px;" src="${event.player.team.shield}" /></div>
+        <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" src="${event.player.team.shield}" /></div>
       </li>`)
     } 
     if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){

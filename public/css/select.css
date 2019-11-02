@@ -89,13 +89,21 @@
     float:right;padding-left:10px;
   }
   .avatar{
-    width:80%;
+    width:50%;
   }
   .img-circle{
-    margin-top:5px;width:85%;border-radius:5px;padding:5px;display:flex;
+    margin-top: 5px;
+    width: 50%;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
   }
   .macro{
-    margin-top:5px;width:85%;border-radius:5px;padding:5px;display:flex;
+    margin-top:5px;
+    width:100%;
+    border-radius:5px;
+    padding:5px;
+    display:flex;
   }
   .msj-rta{
     float:right;background:whitesmoke;margin-left: 90px;

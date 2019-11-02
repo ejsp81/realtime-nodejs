@@ -21,11 +21,15 @@ block layout-content
       getData();  
       $(function () {
         var socket = io();
-        socket.on('changeTournamentStand', function(data){
+        socket.on('updateTournamentStand', function(data){
           $('#myTable tbody tr').remove();
-            data.forEach(addRow);
-          });
+          data.forEach(addRow);
         });
+        socket.on('insertTournamentStand', function(data){
+          $('#myTable tbody tr').remove();
+          data.forEach(addRow);
+        });
+      });
       function addRow(data){
         $('#myTable > tbody').append(`
           <tr>

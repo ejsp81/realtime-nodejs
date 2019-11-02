@@ -61,7 +61,7 @@ team.watch().on('change', function(data){
 
 let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
 tournamentStanding.watch().on('change', function(data){
-  tournamentStanding.find(data.documentKey._id,(err, tournaments)=> {
+  tournamentStanding.findById(data.documentKey._id,(err, tournaments)=> {
     if (err) console.log(err);
     if (data.operationType=='update') {
       io.emit('updateTournamentStand', tournaments);
