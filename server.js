@@ -70,6 +70,8 @@ tournamentStanding.watch().on('change', function(data){
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
 tournamentResult.watch().on('change', function(data){
+  console.log("------")
+  console.log(data)
   tournamentResult.findById(data.documentKey._id,(err, tournaments)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {

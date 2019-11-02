@@ -162,8 +162,6 @@ script.
     //Escucha cambios en ournamentResult
   socket.on('changeTournamentResult', function(tr){
     if ($("#selSoccerGame").val()==tr._id) {
-      console.log('y si corresponde al juego')
-      console.log(tr);
       $("#currentTime").html(tr.current_time);
       $("#goalLocal").html(tr.local_goals)
       $("#goalVisitor").html(tr.visitor_goals)
