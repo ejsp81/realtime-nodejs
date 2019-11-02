@@ -77,6 +77,9 @@ tournamentResult.watch().on('change', function(data){
   tournamentResult.findById(data.documentKey._id,(err, tournaments)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {
+      if (data.updateDescription.updatedFields.current_time==46) {
+        io.emit("first_time",data);
+      }
       io.emit('updateTournamentResult', tournaments);
     }else if (data.operationType=='insert') {
       io.emit('insertTournamentResult', tournaments);
@@ -103,8 +106,9 @@ function updateTimeMatch() {
   // let get_is_playing = tournamentResult.get_is_playing();
     tournamentResult.updateMany({ is_playing: true }, { $inc: { current_time: 1 } }, (err, data)=> {if (err) console.error(err);})
     tournamentResult.updateMany({ is_playing: true, current_time: { $gte: 90 } }, { is_playing: false }, (err, data)=> {if (err) console.error(err);})
+    
 }
-setInterval(updateTimeMatch, 60*1000);
+setInterval(updateTimeMatch, 5*1000);
 /******************************************************/
 
 http.listen(3000, function(){
