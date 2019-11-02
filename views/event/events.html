@@ -8,176 +8,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <style>
-     /* The container */
-     .container {
-        display: block;
-        position: relative;
-        padding-left: 35px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        font-size: 20px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-      
-      /* Hide the browser's default radio button */
-      #teamEventL{
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-      }
-      #teamEventV{
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-      }
-      
-      /* Create a custom radio button */
-      .checkmark {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 25px;
-        width: 25px;
-        background-color: #eee;
-        border-radius: 50%;
-      }
-      
-      /* On mouse-over, add a grey background color */
-      .container:hover input ~ .checkmark {
-        background-color: #ccc;
-      }
-      
-      /* When the radio button is checked, add a blue background */
-      .container input:checked ~ .checkmark {
-        background-color: #2196F3;
-      }
-      
-      /* Create the indicator (the dot/circle - hidden when not checked) */
-      .checkmark:after {
-        content: "";
-        position: absolute;
-        display: none;
-      }
-      
-      /* Show the indicator (dot/circle) when checked */
-      .container input:checked ~ .checkmark:after {
-        display: block;
-      }
-      
-      /* Style the indicator (dot/circle) */
-      .container .checkmark:after {
-        top: 9px;
-        left: 9px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: white;
-      }
-  </style>
-   <style>
-      .mytext{
-          border:0;padding:10px;background:whitesmoke;
-      }
-      .text{
-          width:75%;display:flex;flex-direction:column;
-      }
-      .text > p:first-of-type{
-          width:100%;margin-top:0;margin-bottom:auto;line-height: 13px;font-size: 12px;
-      }
-      .text > p:last-of-type{
-          width:100%;text-align:right;color:silver;margin-bottom:-7px;margin-top:auto;
-      }
-      .text-l{
-          float:left;padding-right:10px;
-      }        
-      .text-r{
-          float:right;padding-left:10px;
-      }
-      .avatar{
-          display:flex;
-          justify-content:center;
-          align-items:center;
-          width:25%;
-          float:left;
-          padding-right:10px;
-      }
-      .macro{
-          margin-top:5px;width:85%;border-radius:5px;padding:5px;display:flex;
-      }
-      .msj-rta{
-          float:right;background:whitesmoke;margin-left: 90px;
-      }
-      .msj{
-          float:left;background:white;
-      }
-      .frame{
-          background:#e0e0de;
-          height:450px;
-          overflow:hidden;
-          padding:0;
-      }
-      .frame > div:last-of-type{
-          position:absolute;bottom:0;width:100%;display:flex;
-      }
-      body > div > div > div:nth-child(2) > span{
-          background: whitesmoke;padding: 10px;font-size: 21px;border-radius: 50%;
-      }
-      body > div > div > div.msj-rta.macro{
-          margin:auto;margin-left:1%;
-      }
-      ul {
-          width:100%;
-          list-style-type: none;
-          padding:18px;
-          position:absolute;
-          bottom:47px;
-          display:flex;
-          flex-direction: column;
-          top:0;
-          overflow-y:scroll;
-      }
-      .msj:before{
-          width: 0;
-          height: 0;
-          content:"";
-          top:-5px;
-          left:-14px;
-          position:relative;
-          border-style: solid;
-          border-width: 0 13px 13px 0;
-          border-color: transparent #ffffff transparent transparent;            
-      }
-      .msj-rta:after{
-          width: 0;
-          height: 0;
-          content:"";
-          top:15px;
-          left:74px;
-          position:relative;
-          border-style: solid;
-          border-width: 13px 0 0 0;
-          border-color: whitesmoke transparent transparent transparent;           
-      }  
-      input:focus{
-          outline: none;
-      }        
-      ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-          color: #d4d4d4;
-      }
-      ::-moz-placeholder { /* Firefox 19+ */
-          color: #d4d4d4;
-      }
-      :-ms-input-placeholder { /* IE 10+ */
-          color: #d4d4d4;
-      }
-      :-moz-placeholder { /* Firefox 18- */
-          color: #d4d4d4;
-      }  
-  </style>
+  <link rel="stylesheet" href="/select.css">
 </head>
 <body>
 	<div class="container">
@@ -196,6 +27,13 @@
                   <img id="imgLocal" src='' width='80px'/>
                   <h6 id="nameLocal">Team Local</h6>
               </div>
+              <!--  
+              <div class="form-group col-sm-2 text-center align-middle">
+                <h2>4 - 7</h2>
+                <h4>min.8</h4>
+                <h6><span class="badge badge-`+(data.is_playing ? 'success">en vivo' : 'secondary">finalizado')+`</span></h6>
+              </div>-->
+              
               <div class="row">
                 <div class="form-group col-sm-2">
                     <h1 id="goalLocal">0</h1>
@@ -231,8 +69,7 @@
                   <input type="radio" name="radio" id="teamEventV" value="visitor"><label id="lblTv">Team Visitor</label>
                   <span class="checkmark"></span>
                 </label>
-            </div>               
-          
+            </div>  
           <div class="form-group col-sm-3">
             <label for="selPlayer">Select a Player:</label>
             <select class="form-control" id="selPlayer" name="selPlayer">
@@ -253,7 +90,8 @@
       <div class="col-sm-10 col-sm-offset-2 frame">
           <ul></ul>
           <div>
-      </div>  
+      </div> 
+       
       <script>
          function insertDetail(event){        
           if (event.isLocalEvent){
@@ -316,7 +154,7 @@
             let json =  details.json();
             json.then(async (details)=>{   
               details.forEach(detail => {
-                insertDetail(detail.isLocalEvent,detail.type_event,detail.time,detail.player.name,detail.player.team.shield);
+                insertDetail(detail);
               });
               
             })

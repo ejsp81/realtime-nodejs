@@ -70,17 +70,22 @@ tournamentStanding.watch().on('change', function(data){
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
 tournamentResult.watch().on('change', function(data){
-  //console.log(JSON.stringify(data))
-  tournamentResult.find({},(err, tournaments)=> {
+  tournamentResult.findById(data.documentKey._id,(err, tournaments)=> {
     if (err) console.error(err);
-    io.emit('changeTournamentResult', tournaments);
+    if (data.operationType=='update') {
+      io.emit('changeTournamentResult', tournaments);
+    }else if (data.operationType=='insert') {
+      io.emit('insertTournamentResult', tournaments);
+    }
+    if(data.current_time == 90){
+      console.log(data.current_time);
+    }
   }).sort({current_time : 1}).populate(['local_team','visitor_team']);
   console.log(new Date(),'Hubo un cambio en la tabla tournament_results');
 });
-var router = express.Router();
 
 let detail_match = require('./controllers/detail_match').DetailMatch;
-detail_match.watch().on('change', function(data){
+  detail_match.watch().on('change', function(data){
   detail_match.findById(data.documentKey._id, (err, detail_match) =>{
           if (err) return next(err);
           io.emit('changeDetailMatch', detail_match);
@@ -103,18 +108,4 @@ setInterval(updateTimeMatch, 10*1000);
 
 http.listen(3000, function(){
     console.log('server is running on port :3000');
-});
-
-
-
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/views/index.html');
-});
-
-app.get('/event', function(req, res){
-  res.sendFile(__dirname + '/views/event/events.html');
-});
-
-app.get('/prueba', function(req, res){
-  res.sendFile(__dirname + '/views/prueba.html');
 });
