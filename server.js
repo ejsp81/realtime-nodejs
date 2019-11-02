@@ -103,7 +103,7 @@ function updateTimeMatch() {
     tournamentResult.updateMany({ is_playing: true }, { $inc: { current_time: 1 } }, (err, data)=> {if (err) console.error(err);})
     tournamentResult.updateMany({ is_playing: true, current_time: { $gte: 90 } }, { is_playing: false }, (err, data)=> {if (err) console.error(err);})
 }
-setInterval(updateTimeMatch, 10*1000); 
+setInterval(updateTimeMatch, 60*1000);
 /******************************************************/
 
 http.listen(3000, function(){
