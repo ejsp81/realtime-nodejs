@@ -39,6 +39,12 @@ block layout-content
           match.find('.currentTime').html(tr.current_time);
           match.find('.goalLocal').html(tr.local_goals);
           match.find('.goalVisitor').html(tr.visitor_goals);
+
+          if(!tr.is_playing){
+            match.find('.badge.is_playing')
+              .removeClass('badge-success').addClass('badge-secondary')
+              .html('finalizado');
+          }
         });
         socket.on('insertTournamentResult', function(tr){
           addRow(tr, false);
@@ -82,7 +88,7 @@ block layout-content
             <div class="col-xs-auto text-center align-middle">
               <h2><span class="goalLocal">${data.local_goals}</span> - <span class="goalVisitor">${data.visitor_goals}</span></h2>
               <h4>min. <span class="currentTime">${data.current_time}</span></h4>
-              <h6><span class="badge badge-`+(data.is_playing ? 'success">en vivo' : 'secondary">finalizado')+`</span></h6>
+              <h6><span class="badge is_playing badge-`+(data.is_playing ? 'success">en vivo' : 'secondary">finalizado')+`</span></h6>
             </div>
             <div class="col col-xs-2 text-center align-middle">
               <img src="${data.visitor_team.shield}" width="70px"/><br>
