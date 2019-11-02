@@ -1,4 +1,5 @@
 const DetailMatch = require('../models/detail_match').DetailMatchModel;
+module.exports.DetailMatch=DetailMatch;
 
 //Simple version, without validation or sanitation
 exports.test = function (req, res) {
@@ -55,11 +56,45 @@ exports.get=function(req, res) {
     }).populate('player')
 }
 
+exports.getByTournamentResult=function(req, res) {
+  DetailMatch.find(({tournament_result:req.params.tournament_result}),(err, detailMatch) => {
+    if(err) {
+        console.error(err)
+        return reject(err)
+    }   
+    res.send(detailMatch)   
+    }).populate({
+      path: 'tournament_result',
+      populate: { path: 'local_team' }
+    }).populate({
+      path: 'tournament_result',
+      populate: { path: 'visitor_team' }
+    }).populate({
+      path: 'detail_match',
+      populate: { path: 'team' }
+    }).populate({
+      path: 'player',
+      populate: { path: 'team' }
+    })
+}
+
 
 exports.detail_match_details = function (req, res) {
   DetailMatch.findById(req.params.id, function (err, detail_match) {
       if (err) return next(err);
       res.send(detail_match);
+  }).populate({
+    path: 'tournament_result',
+    populate: { path: 'local_team' }
+  }).populate({
+    path: 'tournament_result',
+    populate: { path: 'visitor_team' }
+  }).populate({
+    path: 'detail_match',
+    populate: { path: 'team' }
+  }).populate({
+    path: 'player',
+    populate: { path: 'team' }
   })
 };
 

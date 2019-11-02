@@ -35,13 +35,14 @@ exports.tournament_result_details = function (req, res) {
 };
 
 exports.get_is_playing=function(req, res) {
+  console.log('hola')
   TournamentResult.find({ is_playing: true },(err, tournamentResult) => {
     if(err) {
         console.error(err)
         return reject(err)
     }        
     res.send(tournamentResult)
-  })
+  }).populate(['local_team','visitor_team'])
 };
 
 exports.tournament_result_update = function (req, res) {

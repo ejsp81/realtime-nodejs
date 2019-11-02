@@ -1,0 +1,54 @@
+extends ../layout
+
+block scripts
+    script(src='/socket.io/socket.io.js')
+
+block layout-content
+
+  div
+    .container
+      br
+      form
+        .row
+          .form-group.col-sm-3
+            label(for='selSoccerGame') Select a Soccer Game:
+            select.form-control#selSoccerGame(name="selSoccerGame")
+              option
+          .form-group.col-sm-8
+            .row
+              .form-group.col-sm-2
+                img#imgLocal(src='' width='80px')
+                h6#nameLocal Team Local
+              .row
+                .form-group.col-sm-2
+                  h1#goalLocal 0
+                .form-group.col-sm-2
+                  h1 :
+                  h2#currentTime(style="color:rgb(20, 238, 75);margin-left: -4px;") 0
+                .form-group.col-sm-2(style="margin-left: -12px")
+                  h1#goalVisitor 0
+              .form-group.col-sm-2
+                img#imgVisitor(src='' width='80px')
+                h6#nameVisitor Team Visitor
+        .row
+          .form-group.col-sm-3
+            label(for="selEvent") Select a Event:
+            select.form-control#selEvent(name="selEvent")
+              option
+          .form-group.col-sm-3
+            label.container
+              input#teamEventL(type="radio" name="radio" value="local")
+              label#lblTl(style="margin-left: 18px") Team Local
+              span.checkmark
+            label.container
+              input#teamEventV(type="radio" name="radio"  value="visitor")
+              label#lblTv(style="margin-left: 18px") Team Visitor
+              span.checkmark
+          .form-group.col-sm-3
+            label(for="selPlayer") Select a Player:
+            select.form-control#selPlayer(name="selPlayer")
+              option
+        .form-group.row
+          button.btn.btn-primary.col-sm-2#btnTeam(value="dd") Add Event
+      .col-sm-10.col-sm-offset-2.frame
+        include ./listLayout
