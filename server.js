@@ -40,14 +40,7 @@ io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('disconnect', function(){
     console.log('user disconnected');
-  });   
-  socket.on('message2', function(msg){
-    //io.emit('chat message', msg);
-    io.emit('message2', msg);
-  });
-  socket.on('events', function(ev){
-    io.emit('events', ev);
-  });
+  }); 
 });
 
 let team = require('./controllers/teams').Team;
@@ -72,15 +65,18 @@ tournamentStanding.watch().on('change', function(data){
   console.log(new Date(),'Hubo un cambio en la tabla tournament_standings');
 });
 
+var timeSoccerGame=10;
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
 tournamentResult.watch().on('change', function(data){
   tournamentResult.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {
-      if (data.updateDescription.updatedFields.current_time==46) {
-        io.emit("first_time",data);
+      if (data.updateDescription.updatedFields.current_time==(timeSoccerGame/2)||data.updateDescription.updatedFields.current_time==timeSoccerGame) {
+        io.emit("time",data.updateDescription.updatedFields.current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
+      }else{
+        io.emit('updateTournamentResult', tr);
       }
-      io.emit('updateTournamentResult', tournaments);
+     
     }else if (data.operationType=='insert') {
       io.emit('insertTournamentResult', tr);
     }
@@ -91,13 +87,14 @@ tournamentResult.watch().on('change', function(data){
 let detail_match = require('./controllers/detail_match').DetailMatch;
   detail_match.watch().on('change', function(data){
   detail_match.findById(data.documentKey._id, (err, detail_match) =>{
-          if (err) return next(err);
-          io.emit('changeDetailMatch', detail_match);
-      }).populate({
-        path: 'player',
-        populate: { path: 'team' }
-      });
+    if (err) return next(err);
+      io.emit('changeDetailMatch', detail_match);
+  }).populate({
+    path: 'player',
+    populate: { path: 'team' }
+  });
   console.log(new Date(),'Hubo un cambio en la tabla detail_match');
+  
 });
 /******************************************************/
 /* Timer **********************************************/
@@ -105,10 +102,11 @@ function updateTimeMatch() {
   //console.log('Cant stop me now!');
   // let get_is_playing = tournamentResult.get_is_playing();
     tournamentResult.updateMany({ is_playing: true }, { $inc: { current_time: 1 } }, (err, data)=> {if (err) console.error(err);})
-    tournamentResult.updateMany({ is_playing: true, current_time: { $gte: 90 } }, { is_playing: false }, (err, data)=> {if (err) console.error(err);})
+    //tournamentResult.updateMany({ is_playing: true, current_time: { $gte: timeSoccerGame } }, { is_playing: false }, (err, data)=> {if (err) console.error(err);})
     
 }
-setInterval(updateTimeMatch, 5*1000);
+setInterval(updateTimeMatch, 10*1000);
+
 /******************************************************/
 
 http.listen(3000, function(){

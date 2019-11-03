@@ -3,16 +3,31 @@ script.
   var socket = io();
   getSoccerGame();        
   getEvents();
-  function insertDetail(event){        
+  function insertDetail(event){ 
+    var img; 
+    switch (event.type_event) {
+    case 'YELLOW_CARD':
+      img='yellow'
+      break;
+    case 'RED_CARD':
+      img='red'
+      break;
+    case 'GOAL':
+      img='balon'
+      break;  
+    default:
+    img='penal'
+      break;
+  }      
     if (event.isLocalEvent){
       $('.listEvents').append(`
       <li style="width:50%">
         <div class="msj macro">
         <div class="avatar"><img class="img-circle" src="${event.player.team.shield}" /></div>
           <div class="text text-l">
-            <p>${event.type_event}</p>
+            <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
             <p>${event.player.name}</p>
-            <p><small>Minuto: ${event.time}</small></p>
+            <p><small>Minuto: ${event.time}</small></p>            
           </div>
         </div>
       </li>`)                   
@@ -29,7 +44,7 @@ script.
         <li style="width:50%;margin-left:40%">
           <div class="msj-rta macro">
             <div class="text text-r">
-              <p>${event.type_event}</p>
+              <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
               <p>${event.player.name}</p>
               <p><small>Minuto: ${event.time}</small></p>
             </div>
@@ -147,7 +162,7 @@ script.
   }); 
   function updateTr(data,tr){
     fetch('/tournament_results/'+tr+'/update', {
-      method: 'POST',
+      method: 'PUT',
       headers: {
           'Content-Type': 'application/json'
       },
@@ -167,11 +182,10 @@ script.
   socket.on('changeDetailMatch', function(event){
     insertDetail(event);
   });
-  socket.on('first_time', function(event){
-    console.log(event);
+  socket.on('time', function(event){
     data={
         tournament_result: $("#selSoccerGame").val(), 
-        type_event: 'FIRST_TIME', 
+        type_event: event, 
         player: null, 
         time: 45, 
         isLocalEvent:null};
@@ -186,7 +200,6 @@ script.
     }
   });
   socket.on('insertTournamentResult', function(tr){
-    console.log(tr)
     addSoccerGame(tr)
   });
   //llena combo Partidos
