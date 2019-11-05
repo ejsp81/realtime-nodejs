@@ -12,8 +12,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var timer=10;
-var timeSoccerGame=10;
+var timer=5;
+var timeSoccerGame=30;
 
 // Bootstrap 4 y librerías necesarias
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
@@ -77,8 +77,8 @@ tournamentResult.watch().on('change', function(data){
 
     if (data.operationType=='update') {
       var current_time = data.updateDescription.updatedFields.current_time;
-      if (current_time==(timeSoccerGame/2) || current_time>=timeSoccerGame) {
-        io.emit("time", current_time>=timeSoccerGame?'END_GAME':'FIRST_TIME');
+      if (current_time==(timeSoccerGame/2) || current_time==timeSoccerGame) {
+        io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
       }
       io.emit('updateTournamentResult', tr);
     } else if (data.operationType=='insert') {
@@ -104,6 +104,9 @@ let detail_match = require('./controllers/detail_match').DetailMatch;
 /* Timer **********************************************/
 function updateTimeMatch() {
   tournamentResult.updateMany({ is_playing: true }, { $inc: { current_time: 1 } }, (err, data)=> {if (err) console.error(err);}) 
+  tournamentResult.updateMany({ is_playing: true, current_time: { $gte: timeSoccerGame } }, { is_playing: false }, (err, data)=> {
+    if (err) console.error(err);
+  })
 }
 setInterval(updateTimeMatch, timer*1000);
 
