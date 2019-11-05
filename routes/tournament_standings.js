@@ -9,6 +9,8 @@ router.post('/create', tournament_standings_controller.createTournamentStanding)
 
 router.get('/get', tournament_standings_controller.get);
 
+router.get('/getByTeam/:id', tournament_standings_controller.getByTeam);
+
 router.get('/:id', tournament_standings_controller.tournament_standings_details);
 
 router.put('/:id/update', tournament_standings_controller.tournament_standings_update);
