@@ -12,8 +12,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var timer=5;
-var timeSoccerGame=10;
+var timer=3;
+var timeSoccerGame=90;
 
 // Bootstrap 4 y librerías necesarias
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
