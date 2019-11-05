@@ -18,7 +18,7 @@ block layout-content
       getData();  
       $(function () {
         var socket = io();
-        socket.on('cambio', function(data){
+        socket.on('updateTeam', function(data){
           $('#myTable tbody tr').remove();
             data.forEach(addRow);
           });

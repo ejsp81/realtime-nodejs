@@ -4,10 +4,12 @@ let team=require('./teams');
 let tournament_resultSchema = new mongoose.Schema({
     local_team: {
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
       ref: 'Team'
     },
     visitor_team:{
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
       ref: 'Team'
     },
     local_goals:Number,
