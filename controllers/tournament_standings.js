@@ -37,6 +37,16 @@ exports.tournament_standings_details = function (req, res) {
   })
 };
 
+exports.getByTeam=function(req, res) {
+  TournamentStanding.find(({ team: req.params.id }),(err, tournament_standings) => {
+      if(err) {
+          console.error(err)
+          return reject(err)
+      }        
+      res.send(tournament_standings)
+  }).populate('team')
+} 
+
 //update
 exports.tournament_standings_update = function (req, res) {
   TournamentStanding.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, tournament_standings) {

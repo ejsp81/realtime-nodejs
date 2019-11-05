@@ -12,8 +12,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var timer=5;
-var timeSoccerGame=30;
+var timer=3;
+var timeSoccerGame=90;
 
 // Bootstrap 4 y librerías necesarias
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
@@ -71,14 +71,97 @@ tournamentStanding.watch().on('change', function(data){
 });
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
+
 tournamentResult.watch().on('change', function(data){
-  tournamentResult.findById(data.documentKey._id,(err, tr)=> {
+  tournamentResult.findById(data.documentKey._id,async (err, tr)=> {
     if (err) console.error(err);
 
     if (data.operationType=='update') {
       var current_time = data.updateDescription.updatedFields.current_time;
+      
       if (current_time==(timeSoccerGame/2) || current_time==timeSoccerGame) {
         io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
+        if (current_time==timeSoccerGame) {   
+          let local,visitor,empate=false,tsLocal,tsVisitor;
+          let won_matches=0,lost_matches=0,drawn_matches=0,total_points=0;
+          let won_matchesV=0,lost_matchesV=0,drawn_matchesV=0,total_pointsV=0;
+          console.log(tr)       
+          if (tr.local_goals==tr.visitor_goals) {
+            total_points=1;
+            total_pointsV=1;
+            drawn_matches=1;
+            drawn_matchesV=1;
+          } else {
+            if (tr.local_goals>tr.visitor_goals) {
+              won_matches=1;
+              won_matchesV=0;
+              lost_matches=0;
+              lost_matchesV=1;
+              total_points=3;
+              total_pointsV=0;
+            } else {
+              won_matches=0;
+              won_matchesV=1;
+              lost_matches=1;
+              lost_matchesV=0;
+              total_points=0;
+              total_pointsV=3;
+            }
+          }
+          let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
+          tournamentStanding.find(({ team: tr.local_team._id}),async (err, tsL) => {
+            if(err) {
+                console.error(err)
+                return reject(err)
+            } 
+            tsLocal= await tsL;
+            console.log('equipo local') 
+            console.log(tsLocal)
+            console.log(tsLocal[0].team._id)
+            tournamentStanding.findOne({
+              team: tsLocal[0].team._id
+            })
+            .then((tsLR) => {              
+              tsLR.total_matches= tsLocal[0].total_matches+1,
+              tsLR.won_matches= tsLocal[0].won_matches+won_matches,
+              tsLR.lost_matches= tsLocal[0].lost_matches+lost_matches,
+              tsLR.drawn_matches= tsLocal[0].drawn_matches+drawn_matches,
+              tsLR.total_points= tsLocal[0].total_points+total_points;
+              tsLR
+                .save()
+                .then(() => {
+                  console.log('resultado............')
+                  console.log(tsLR)
+                });
+            });
+          }).populate('team')
+          tournamentStanding.find(({ team: tr.visitor_team._id}),async (err, tsV) => {
+            if(err) {
+                console.error(err)
+                return reject(err)
+            } 
+            tsVisitor= await tsV;
+            console.log('equipo visitante') 
+            console.log(tsVisitor)
+            console.log(tsVisitor[0].team._id)
+            tournamentStanding.findOne({
+              team: tsVisitor[0].team._id
+            })
+            .then((tsLR) => {              
+              tsLR.total_matches= tsVisitor[0].total_matches+1,
+              tsLR.won_matches= tsVisitor[0].won_matches+won_matchesV,
+              tsLR.lost_matches= tsVisitor[0].lost_matches+lost_matchesV,
+              tsLR.drawn_matches= tsVisitor[0].drawn_matches+drawn_matchesV,
+              tsLR.total_points= tsVisitor[0].total_points+total_pointsV;
+              tsLR
+                .save()
+                .then(() => {
+                  console.log('resultado............')
+                  console.log(tsLR)
+                });
+            });
+          }).populate('team')
+        }
       }
       io.emit('updateTournamentResult', tr);
     } else if (data.operationType=='insert') {
