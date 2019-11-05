@@ -4,5 +4,5 @@ echo "Download changes to git"
 git pull origin master
 echo "update libs"
 npm install
-echo "Restart server melo"
+echo "Restart server"
 pm2 restart app
