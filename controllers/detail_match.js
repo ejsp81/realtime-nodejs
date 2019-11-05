@@ -9,10 +9,10 @@ exports.test = function (req, res) {
 exports.createDetailMatch=function(req, res){
   let detailMatch = new DetailMatch(req.body);
   detailMatch.save(function (err) {
-      if (err) {
-          return next(err);
-      }
-      res.send('DetailMatch created successfully')
+    if (err) {
+      console.error(err)
+    }   
+    res.send('DetailMatch created successfully')
   })
 }
 

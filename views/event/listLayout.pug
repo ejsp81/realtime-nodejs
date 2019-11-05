@@ -3,39 +3,56 @@ script.
   var socket = io();
   getSoccerGame();        
   getEvents();
-  function insertDetail(event){        
+  function insertDetail(event){ 
+    var img; 
+    switch (event.type_event) {
+    case 'YELLOW_CARD':
+      img='yellow'
+      break;
+    case 'RED_CARD':
+      img='red'
+      break;
+    case 'GOAL':
+      img='balon'
+      break;  
+    default:
+    img='penal'
+      break;
+  }      
     if (event.isLocalEvent){
       $('.listEvents').append(`
       <li style="width:50%">
         <div class="msj macro">
         <div class="avatar"><img class="img-circle" src="${event.player.team.shield}" /></div>
           <div class="text text-l">
-            <p>${event.type_event}</p>
+            <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
             <p>${event.player.name}</p>
-            <p><small>Minuto: ${event.time}</small></p>
+            <p><small>Minuto: ${event.time}</small></p>            
           </div>
         </div>
       </li>`)                   
     }else if(!event.isLocalEvent){
-      $('.listEvents').append(`
-      <li style="width:50%;margin-left:40%">
-        <div class="msj-rta macro">
-          <div class="text text-r">
-            <p>${event.type_event}</p>
-            <p>${event.player.name}</p>
-            <p><small>Minuto: ${event.time}</small></p>
+      if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
+        $('.listEvents').append(`
+        <li style="width:50%;margin-left:20%">
+          <div class="msj-rta macro text text-center">
+            <h3>${event.type_event}</h3>
           </div>
-        <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" src="${event.player.team.shield}" /></div>
-      </li>`)
+        </li>`)                   
+      } else{    
+        $('.listEvents').append(`
+        <li style="width:50%;margin-left:40%">
+          <div class="msj-rta macro">
+            <div class="text text-r">
+              <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
+              <p>${event.player.name}</p>
+              <p><small>Minuto: ${event.time}</small></p>
+            </div>
+          <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" src="${event.player.team.shield}" /></div>
+        </li>`)
+      }
     } 
-    if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
-      $('.listEvents').append(`
-      <li style="width:50%;margin-left:20%">
-        <div class="msj-rta macro text text-center">
-          <h3>${event.type_event}</h3>
-        </div>
-      </li>`)                   
-    }      
+     
   }
   var playerL,playerV,isLocal,shieldL,shieldV;
   //Seleccionar Jugador
@@ -128,13 +145,7 @@ script.
         player: $("#selPlayer").val(), 
         time: $("#currentTime").html(), 
         isLocalEvent:isLocal};
-      fetch('/detail_matchs/create', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+      createEvents(data)
       if ($("#selEvent").val()==='GOAL') {
         if (isLocal) {
           data={
@@ -145,21 +156,42 @@ script.
             visitor_goals:parseInt($("#goalVisitor").html())+1
           }
         }
-        fetch('/tournament_results/'+$("#selSoccerGame").val()+'/update', {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
+        updateTr(data,$("#selSoccerGame").val());
       }
     });  
-  });   
+  }); 
+  function updateTr(data,tr){
+    fetch('/tournament_results/'+tr+'/update', {
+      method: 'PUT',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+  }  
+  function createEvents(data){
+    fetch('/detail_matchs/create', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+  }  
   //Escucha cambios en 
   socket.on('changeDetailMatch', function(event){
     insertDetail(event);
   });
-    //Escucha cambios en ournamentResult
+  socket.on('time', function(event){
+    data={
+        tournament_result: $("#selSoccerGame").val(), 
+        type_event: event, 
+        player: null, 
+        time: 45, 
+        isLocalEvent:null};
+    createEvents(data)
+  });
+  //Escucha cambios en ournamentResult
   socket.on('updateTournamentResult', function(tr){
     if ($("#selSoccerGame").val()==tr._id) {
       $("#currentTime").html(tr.current_time);
@@ -168,7 +200,6 @@ script.
     }
   });
   socket.on('insertTournamentResult', function(tr){
-    console.log(tr)
     addSoccerGame(tr)
   });
   //llena combo Partidos
