@@ -33,12 +33,15 @@ script.
       </li>`)                   
     }else if(!event.isLocalEvent){
       if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
-        $('.listEvents').append(`
-        <li style="width:50%;margin-left:20%">
-          <div class="msj-rta macro text text-center">
-            <h3>${event.type_event}</h3>
-          </div>
-        </li>`)                   
+        console.log(event)
+        if ($("#selSoccerGame").val()==event.tournament_result) {
+          $('.listEvents').append(`
+          <li style="width:50%;margin-left:20%">
+            <div class="msj-rta macro text text-center">
+              <h3>${event.type_event}</h3>
+            </div>
+          </li>`) 
+        }              
       } else{    
         $('.listEvents').append(`
         <li style="width:50%;margin-left:40%">

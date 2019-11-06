@@ -16,4 +16,6 @@ router.put('/:id/update', event_controller.event_update);
 
 router.delete('/:id/delete', event_controller.event_delete);
 
+router.put('/update/updateAll', event_controller.updateAll);
+
 module.exports = router;

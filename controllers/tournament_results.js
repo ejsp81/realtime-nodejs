@@ -59,6 +59,20 @@ exports.tournament_result_delete = function (req, res) {
   })
 };
 
+exports.updateAll = function (req, res) {
+  TournamentResult.update(({}),{$set: req.body},{multi: true}, function (err) {
+    if (err) return next(err);
+    res.send('Update successfully!');
+  })
+};
+
+var res={
+  "local_goals":0,
+  "visitor_goals":0,
+  "is_playing":false,
+  "current_time":0
+}
+
 
 
 

@@ -13,7 +13,7 @@ app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
 var timer=3;
-var timeSoccerGame=90;
+var timeSoccerGame=30;
 
 // Bootstrap 4 y librerías necesarias
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
@@ -75,17 +75,14 @@ let tournamentResult = require('./controllers/tournament_results').TournamentRes
 tournamentResult.watch().on('change', function(data){
   tournamentResult.findById(data.documentKey._id,async (err, tr)=> {
     if (err) console.error(err);
-
     if (data.operationType=='update') {
       var current_time = data.updateDescription.updatedFields.current_time;
-      
       if (current_time==(timeSoccerGame/2) || current_time==timeSoccerGame) {
-        io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
+        //io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
         if (current_time==timeSoccerGame) {   
           let local,visitor,empate=false,tsLocal,tsVisitor;
           let won_matches=0,lost_matches=0,drawn_matches=0,total_points=0;
           let won_matchesV=0,lost_matchesV=0,drawn_matchesV=0,total_pointsV=0;
-          console.log(tr)       
           if (tr.local_goals==tr.visitor_goals) {
             total_points=1;
             total_pointsV=1;
@@ -115,9 +112,6 @@ tournamentResult.watch().on('change', function(data){
                 return reject(err)
             } 
             tsLocal= await tsL;
-            console.log('equipo local') 
-            console.log(tsLocal)
-            console.log(tsLocal[0].team._id)
             tournamentStanding.findOne({
               team: tsLocal[0].team._id
             })
@@ -141,9 +135,6 @@ tournamentResult.watch().on('change', function(data){
                 return reject(err)
             } 
             tsVisitor= await tsV;
-            console.log('equipo visitante') 
-            console.log(tsVisitor)
-            console.log(tsVisitor[0].team._id)
             tournamentStanding.findOne({
               team: tsVisitor[0].team._id
             })
@@ -161,6 +152,28 @@ tournamentResult.watch().on('change', function(data){
                 });
             });
           }).populate('team')
+         
+          detail_match.create({
+            tournament_result: tr._id, 
+            type_event: 'END_GAME', 
+            player: null, 
+            time: null, 
+            isLocalEvent:null}, function (err, dm) {
+            if (err) return handleError(err);
+              console.log('DetailMatch created successfully')
+              console.log(dm)
+          })
+        }else{
+          detail_match.create({
+            tournament_result: tr._id, 
+            type_event: 'FIRST_TIME', 
+            player: null, 
+            time: null, 
+            isLocalEvent:null}, function (err, dm) {
+            if (err) return handleError(err);
+              console.log('DetailMatch created successfully')
+              console.log(dm)
+          })
         }
       }
       io.emit('updateTournamentResult', tr);

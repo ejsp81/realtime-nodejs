@@ -18,6 +18,8 @@ router.put('/:id/update', tournament_results_controller.tournament_result_update
 
 router.delete('/:id/delete', tournament_results_controller.tournament_result_delete);
 
+router.put('/update/updateAll', tournament_results_controller.updateAll);
+
 router.get('/', function(req, res){
   res.render('tournamentResult/index', { title: 'Tournament Result' });
 });
