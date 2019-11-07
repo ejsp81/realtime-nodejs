@@ -62,3 +62,18 @@ exports.tournament_standings_delete = function (req, res) {
       res.send('Deleted successfully!');
   })
 };
+
+exports.updateAll = function (req, res) {
+  TournamentStanding.update(({}),{$set: req.body},{multi: true}, function (err) {
+    if (err) return next(err);
+    res.send('Update successfully!');
+  })
+};
+
+var res={
+  "total_matches":0,
+  "won_matches":0,
+  "lost_matches":0,
+  "drawn_matches":0,
+  "total_points":0
+};

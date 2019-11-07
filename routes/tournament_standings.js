@@ -17,6 +17,8 @@ router.put('/:id/update', tournament_standings_controller.tournament_standings_u
 
 router.delete('/:id/delete', tournament_standings_controller.tournament_standings_delete);
 
+router.put('/update/updateAll', tournament_standings_controller.updateAll);
+
 router.get('/', function(req, res){
   res.render('tournamentStanding/index', { title: 'Tournament Standing' });
 });

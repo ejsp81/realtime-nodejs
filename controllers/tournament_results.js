@@ -36,7 +36,7 @@ exports.tournament_result_details = function (req, res) {
 
 exports.get_is_playing=function(req, res) {
   console.log('tournament_results.get_is_playing')
-  TournamentResult.find({ is_playing: true },(err, tournamentResult) => {
+  TournamentResult.find({ is_playing: req.params.is_playing },(err, tournamentResult) => {
     if(err) {
         console.error(err)
         return reject(err)
@@ -58,6 +58,20 @@ exports.tournament_result_delete = function (req, res) {
       res.send('Deleted successfully!');
   })
 };
+
+exports.updateAll = function (req, res) {
+  TournamentResult.update(({}),{$set: req.body},{multi: true}, function (err) {
+    if (err) return next(err);
+    res.send('Update successfully!');
+  })
+};
+
+var res={
+  "local_goals":0,
+  "visitor_goals":0,
+  "is_playing":false,
+  "current_time":0
+}
 
 
 

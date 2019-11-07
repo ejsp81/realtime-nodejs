@@ -59,3 +59,11 @@ exports.event_delete = function (req, res) {
       res.send('Deleted successfully!');
   })
 };
+
+exports.updateAll = function (req, res) {
+  Event.update(({}),{$set: req.body},{multi: true}, function (err) {
+    if (err) return next(err);
+    res.send('Update successfully!');
+  })
+};
+
