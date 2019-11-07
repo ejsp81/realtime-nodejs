@@ -1,7 +1,7 @@
 ul.listEvents
 script.
   var socket = io();
-  getSoccerGame();        
+  getSoccerGame(true);        
   getEvents();
   function insertDetail(event){ 
     var img; 
@@ -33,7 +33,6 @@ script.
       </li>`)                   
     }else if(!event.isLocalEvent){
       if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
-        console.log(event)
         if ($("#selSoccerGame").val()==event.tournament_result) {
           $('.listEvents').append(`
           <li style="width:50%;margin-left:20%">
@@ -57,7 +56,7 @@ script.
     } 
      
   }
-  var playerL,playerV,isLocal,shieldL,shieldV;
+  var playerL,playerV,isLocal,shieldL,shieldV,idTr;
   //Seleccionar Jugador
   $("input[name='radio']").change(async function(){
     $('#selPlayer').children('option:not(:first)').remove();
@@ -81,6 +80,34 @@ script.
   //Selecciona partidos en juego
   $("select#selSoccerGame").change(async function(){
     resetEvents();
+    resetResult()
+    //obtiene partidos en juego
+    var local_team,visitor_team;
+    let soccerGame = await fetch('/tournament_results/'+$("#selSoccerGame").val());
+    if (soccerGame.ok) {
+      let json =  soccerGame.json();
+      json.then(async (team)=>{
+        shieldL=team.local_team.shield;  
+        shieldV=team.visitor_team.shield;  
+        idTr=team._id;
+        resetResult()
+        addResult(team);
+        local_team=team.local_team._id;
+        visitor_team=team.visitor_team._id;
+        var match = $('.row-match#'+team._id);
+        console.log(team)
+        if(!team.is_playing){
+          match.find('.badge.is_playing')
+            .removeClass('badge-success').addClass('badge-secondary')
+            .html('finalizado');
+            $("#live").attr("id","notlive");
+        }
+      })
+      
+    } else {
+      alert("HTTP-Error: " + soccerGame.status);
+    }
+    //obtiene eventos del partido
     let details = await fetch('/detail_matchs/getByTournamentResult/'+$("#selSoccerGame").val());
     if (details.ok) {
       let json =  details.json();
@@ -93,74 +120,54 @@ script.
     } else {
       alert("HTTP-Error: " + details.status);
     } 
-    //obtiene partidos en juego
-    let soccerGame = await fetch('/tournament_results/'+$("#selSoccerGame").val());
-    if (soccerGame.ok) {
-      let json =  soccerGame.json();
-      json.then(async (team)=>{
-        $("#imgLocal").attr("src",team.local_team.shield);
-        $("#nameLocal").html(team.local_team.name);
-        $("#goalLocal").html(team.local_goals);
-        $("#lblTl").text(team.local_team.name);
-        $("#teamEventL").val(team.local_team._id);
-        shieldL=team.local_team.shield;              
-        
-        $("#imgVisitor").attr("src",team.visitor_team.shield);
-        $("#nameVisitor").html(team.visitor_team.name);
-        $("#goalVisitor").html(team.visitor_goals);
-        $("#lblTv").html(team.visitor_team.name);
-        $("#teamEventV").val(team.visitor_team._id);
-        shieldV=team.visitor_team.shield;
-
-        $("#currentTime").html(team.current_time);   
-        
-        let playersL = await fetch('/players/getByTeam/'+team.local_team._id);              
-        if (playersL.ok) {
-          let json =  playersL.json();
-          json.then(players=>{                                  
-            playerL=players;
-          })
-        } else {
-          alert("HTTP-Error: " + playersL.status);
-        }  
-        let playersV = await fetch('/players/getByTeam/'+team.visitor_team._id);              
-        if (playersV.ok) {
-          let json =  playersV.json();
-          json.then(players=>{                                   
-            playerV=players;
-          })
-        } else {
-          alert("HTTP-Error: " + playersV.status);
-        } 
+    //obtiene jugadores de cada equipo
+    let playersL = await fetch('/players/getByTeam/'+local_team);              
+    if (playersL.ok) {
+      let json =  playersL.json();
+      json.then(players=>{                                  
+        playerL=players;
       })
     } else {
-      alert("HTTP-Error: " + soccerGame.status);
+      alert("HTTP-Error: " + playersL.status);
+    }  
+    let playersV = await fetch('/players/getByTeam/'+visitor_team);              
+    if (playersV.ok) {
+      let json =  playersV.json();
+      json.then(players=>{                                   
+        playerV=players;
+      })
+    } else {
+      alert("HTTP-Error: " + playersV.status);
     } 
   });
   $(function () {
     $( "#btnTeam" ).click(function(e) {
-      e.preventDefault();   
-      var player= $('select[name="selPlayer"] option:selected').text();
-      var shield=isLocal?shieldL:shieldV,data; 
-      data={
-        tournament_result: $("#selSoccerGame").val(), 
-        type_event: $("#selEvent").val(), 
-        player: $("#selPlayer").val(), 
-        time: $("#currentTime").html(), 
-        isLocalEvent:isLocal};
-      createEvents(data)
-      if ($("#selEvent").val()==='GOAL') {
-        if (isLocal) {
-          data={
-            local_goals:parseInt($("#goalLocal").html())+1
+      e.preventDefault(); 
+      if ( $('#stateMatch').text()=='finalizado') {
+        alert('El Juego ha Finalizado, No es posible agregar mas eventos')
+      } else {
+        var player= $('select[name="selPlayer"] option:selected').text();
+        var shield=isLocal?shieldL:shieldV,data; 
+        data={
+          tournament_result: $("#selSoccerGame").val(), 
+          type_event: $("#selEvent").val(), 
+          player: $("#selPlayer").val(), 
+          time: $("#currentTime").html(), 
+          isLocalEvent:isLocal};
+        createEvents(data)
+        if ($("#selEvent").val()==='GOAL') {
+          if (isLocal) {
+            data={
+              local_goals:parseInt($("#goalLocal").html())+1
+            }
+          } else {
+            data={
+              visitor_goals:parseInt($("#goalVisitor").html())+1
+            }
           }
-        } else {
-          data={
-            visitor_goals:parseInt($("#goalVisitor").html())+1
-          }
+          updateTr(data,$("#selSoccerGame").val());
         }
-        updateTr(data,$("#selSoccerGame").val());
-      }
+      } 
     });  
   }); 
   function updateTr(data,tr){
@@ -200,6 +207,13 @@ script.
       $("#currentTime").html(tr.current_time);
       $("#goalLocal").html(tr.local_goals)
       $("#goalVisitor").html(tr.visitor_goals)
+      var match = $('.row-match#'+tr._id);
+      if(!tr.is_playing){
+        match.find('.badge.is_playing')
+          .removeClass('badge-success').addClass('badge-secondary')
+          .html('finalizado');
+          $("#live").attr("id","notlive");
+      }
     }
   });
   socket.on('insertTournamentResult', function(tr){
@@ -212,8 +226,9 @@ script.
     `)
   } 
   //obtiene Partidos en juego  
-  function getSoccerGame(){
-    $.get('/tournament_results/getIsPlaying', (data) => {
+  function getSoccerGame(is_playing){
+    
+    $.get('/tournament_results/getIsPlaying/'+is_playing, (data) => {
       data.forEach(addSoccerGame);                
     });
   }
@@ -227,4 +242,40 @@ script.
     $.get('/events/get', (data) => {
       data.forEach(addEvent);
     });
+  }
+  function addResult(data){
+    var rowHtml = `<div class="row row-match justify-content-center pb-3" id="${data._id}">
+        <div class="col col-xs-2 text-center align-middle">
+          <img src="${data.local_team.shield}" width="70px"/><br>
+          ${data.local_team.name}
+        </div>
+        <div class="col-xs-auto text-center align-middle">
+          <h2><span class="goalLocal" id=goalLocal>${data.local_goals}</span> - <span class="goalVisitor"id=goalVisitor>${data.visitor_goals}</span></h2>
+          <h4>min. <span class="currentTime" id=currentTime>${data.current_time}</span></h4>
+          <h6><span id=stateMatch class="badge is_playing badge-`+(data.is_playing ? 'success">en vivo' : 'secondary">finalizado')+`</span></h6>
+          <div id="live">
+          </div>
+          
+        </div>
+        <div class="col col-xs-2 text-center align-middle">
+          <img src="${data.visitor_team.shield}" width="70px"/><br>
+          ${data.visitor_team.name}
+        </div>
+      </div>`;
+      $('#result').append(rowHtml);
+  }
+
+  $('#check1').change(function() {
+    $('#selSoccerGame').children('option:not(:first)').remove();
+    resetEvents();
+    resetResult()
+    if(this.checked) {
+      getSoccerGame(true);  
+    }else{
+      getSoccerGame(false);  
+    }      
+  });
+
+  function resetResult(){
+     $('.row-match#'+idTr).remove();
   }

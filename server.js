@@ -82,7 +82,7 @@ tournamentResult.watch().on('change', function(data){
       if (current_time==(timeSoccerGame/2) || current_time==timeSoccerGame) {
         //io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
         if (current_time==timeSoccerGame) {   
-          let local,visitor,empate=false,tsLocal,tsVisitor;
+          let tsLocal,tsVisitor;
           let won_matches=0,lost_matches=0,drawn_matches=0,total_points=0;
           let won_matchesV=0,lost_matchesV=0,drawn_matchesV=0,total_pointsV=0;
           if (tr.local_goals==tr.visitor_goals) {

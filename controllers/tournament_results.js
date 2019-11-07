@@ -36,7 +36,7 @@ exports.tournament_result_details = function (req, res) {
 
 exports.get_is_playing=function(req, res) {
   console.log('tournament_results.get_is_playing')
-  TournamentResult.find({ is_playing: true },(err, tournamentResult) => {
+  TournamentResult.find({ is_playing: req.params.is_playing },(err, tournamentResult) => {
     if(err) {
         console.error(err)
         return reject(err)
