@@ -7,44 +7,93 @@ block layout-content
   div
     .container
       br
-      table#myTable.table
+      table#listTeams.table.text-center
         thead
           tr
-            th Team
-            th total_matches
-            th won_matches
-            th lost_matches
-            th drawn_matches
-            th total_points
+            th.align-middle Team
+            th.align-middle Total matches
+            th.align-middle Won matches
+            th.align-middle Drawn matches
+            th.align-middle Lost matches
+            th.align-middle Total points
         tbody
     script.
       getData();  
       $(function () {
         var socket = io();
-        socket.on('updateTournamentStand', function(data){
-          $('#myTable tbody tr').remove();
-          data.forEach(addRow);
+
+        socket.on('updateTournamentStand', function(tr){
+          var match = $('.row-team#'+tr._id);
+          //match.find('.teamName').html(tr.team.name);
+          match.find('.matches').html(tr.total_matches);
+          match.find('.won').html(tr.won_matches);
+          match.find('.drawn').html(tr.drawn_matches);
+          match.find('.points').html(tr.total_points);
+          sortTable('listTeams', 5)
         });
-        socket.on('insertTournamentStand', function(data){
-          $('#myTable tbody tr').remove();
-          data.forEach(addRow);
+
+        socket.on('insertTournamentStand', function(tr){
+          addRow(tr, false);
+          sortTable('listTeams', 5)
         });
+
       });
-      function addRow(data){
-        $('#myTable > tbody').append(`
-          <tr>
-          <td>${data.team.name}</td>
-          <td>${data.total_matches}</td>
-          <td>${data.won_matches}</td>
-          <td>${data.lost_matches}</td>
-          <td>${data.drawn_matches}</td>
-          <td>${data.total_points}</td>
-          </tr>`);
-        }
+
+
+      function addRow(data, append=true){
+        var rowHtml = `<tr class="row-team" id="${data._id}">
+          <td class="align-middle teamName">
+            <img src="${data.team.shield}" width="70px"/><br>
+            ${data.team.name}
+          </td>
+          <td class="align-middle matches">${data.total_matches}</td>
+          <td class="align-middle won">${data.won_matches}</td>
+          <td class="align-middle drawn">${data.drawn_matches}</td>
+          <td class="align-middle lost">${data.lost_matches}</td>
+          <td class="align-middle points">${data.total_points}</td>
+        </tr>`;
+        if(append)
+          $('#listTeams tbody').append(rowHtml);
+        else
+          $('#listTeams tbody').prepend(rowHtml);
+        sortTable('listTeams', 5)
+      }
+
       function getData(){
         $.get('tournament_standings/get', (data) => {
           data.forEach(addRow);
         });
+      }
+
+      function sortTable(idTable, indexCol) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById(idTable);
+        switching = true;
+        /*Make a loop that will continue until no switching has been done:*/
+        while (switching) {
+          //start by saying: no switching is done:
+          switching = false;
+          rows = table.rows;
+          /*Loop through all table rows (except the first, which contains table headers):*/
+          for (i = 1; i < (rows.length - 1); i++) {
+            //start by saying there should be no switching:
+            shouldSwitch = false;
+            /*Get the two elements you want to compare, one from current row and one from the next:*/
+            x = rows[i].getElementsByTagName("TD")[indexCol];
+            y = rows[i + 1].getElementsByTagName("TD")[indexCol];
+            //check if the two rows should switch place:
+            if (Number(x.innerHTML) < Number(y.innerHTML)) {
+              //if so, mark as a switch and break the loop:
+              shouldSwitch = true;
+              break;
+            }
+          }
+          if (shouldSwitch) {
+            /*If a switch has been marked, make the switch and mark that a switch has been done:*/
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+          }
+        }
       }
     
   hr

@@ -61,12 +61,14 @@ let tournamentStanding = require('./controllers/tournament_standings').Tournamen
 tournamentStanding.watch().on('change', function(data){
   tournamentStanding.findById(data.documentKey._id,(err, tr)=> {
     if (err) console.log(err);
-    if (data.operationType=='update') {
+    console.log(data.operationType);
+    console.log(tr);
+    if (data.operationType=='update' || data.operationType=='replace') {
       io.emit('updateTournamentStand', tr);
     }else if (data.operationType=='insert') {
       io.emit('insertTournamentStand', tr);
     }
-  }).sort({total_points : -1}).populate('team');
+  }).populate('team');
   console.log(new Date(),'Hubo un cambio en la tabla tournament_standings');
 });
 
