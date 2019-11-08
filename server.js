@@ -227,22 +227,22 @@ app.get('/', function(req, res){
 });
 
 app.get('/reset', function(req, res){
-  tournamentStanding.update(({}),{$set: {
-    "total_matches":0,
-    "won_matches":0,
-    "lost_matches":0,
-    "drawn_matches":0,
-    "total_points":0
+  tournamentStanding.updateMany(({}),{$set: {
+    total_matches:0,
+    won_matches:0,
+    lost_matches:0,
+    drawn_matches:0,
+    total_points:0
   }},{multi: true}, function (err) {
     if (err) return next(err);
     res.send('Update successfully!');
   }); 
-  
-  detail_match.remove(({}), function (err) {
+
+  detail_match.deleteMany(({}), function (err) {
     if (err) return next(err);
     res.send('Deleted successfully!');
   }) 
-  tournamentResult.remove(({}), function (err) {
+  tournamentResult.deleteMany(({}), function (err) {
     if (err) return next(err);
     res.send('Deleted successfully!');
   })
