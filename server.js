@@ -12,7 +12,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var timer=3;
+var timer=5;
 var timeSoccerGame=90;
 
 // Bootstrap 4 y librerías necesarias
@@ -74,14 +74,12 @@ tournamentStanding.watch().on('change', function(data){
 });
 
 let tournamentResult = require('./controllers/tournament_results').TournamentResult;
-
 tournamentResult.watch().on('change', function(data){
   tournamentResult.findById(data.documentKey._id,async (err, tr)=> {
     if (err) console.error(err);
     if (data.operationType=='update') {
       var current_time = data.updateDescription.updatedFields.current_time;
       if (current_time==(timeSoccerGame/2) || current_time==timeSoccerGame) {
-        //io.emit("time", current_time==timeSoccerGame?'END_GAME':'FIRST_TIME');
         if (current_time==timeSoccerGame) {   
           let tsLocal,tsVisitor;
           let won_matches=0,lost_matches=0,drawn_matches=0,total_points=0;
@@ -108,7 +106,7 @@ tournamentResult.watch().on('change', function(data){
               total_pointsV=3;
             }
           }
-          let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
+          //let tournamentStanding = require('./controllers/tournament_standings').TournamentStanding;
           tournamentStanding.find(({ team: tr.local_team._id}),async (err, tsL) => {
             if(err) {
                 console.error(err)
@@ -154,8 +152,7 @@ tournamentResult.watch().on('change', function(data){
                   console.log(tsLR)
                 });
             });
-          }).populate('team')
-         
+          }).populate('team')         
           detail_match.create({
             tournament_result: tr._id, 
             type_event: 'END_GAME', 
@@ -175,13 +172,13 @@ tournamentResult.watch().on('change', function(data){
             isLocalEvent:null}, function (err, dm) {
             if (err) return handleError(err);
               console.log('DetailMatch created successfully')
-              console.log(dm)
           })
         }
       }
       io.emit('updateTournamentResult', tr);
     } else if (data.operationType=='insert') {
       io.emit('insertTournamentResult', tr);
+      console.log(tr)
     }
   }).sort({current_time : 1}).populate(['local_team','visitor_team']);
   console.log(new Date(),'Hubo un cambio en la tabla tournament_results');
@@ -189,11 +186,10 @@ tournamentResult.watch().on('change', function(data){
 
 let detail_match = require('./controllers/detail_match').DetailMatch;
   detail_match.watch().on('change', function(data){
+    console.log(data)
   detail_match.findById(data.documentKey._id, (err, detail_match) =>{
     if (err) return console.error(err);
       io.emit('changeDetailMatch', detail_match);
-      console.log('--------------------')
-      console.log(detail_match)
   }).populate({
     path: 'tournament_result',
     populate: { path: 'local_team' }
@@ -225,3 +221,31 @@ setInterval(updateTimeMatch, timer*1000);
 http.listen(3000, function(){
     console.log('server is running on port :3000');
 });
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/layout');
+});
+
+app.get('/reset', function(req, res){
+  tournamentStanding.update(({}),{$set: {
+    "total_matches":0,
+    "won_matches":0,
+    "lost_matches":0,
+    "drawn_matches":0,
+    "total_points":0
+  }},{multi: true}, function (err) {
+    if (err) return next(err);
+    res.send('Update successfully!');
+  }); 
+  
+  detail_match.remove(({}), function (err) {
+    if (err) return next(err);
+    res.send('Deleted successfully!');
+  }) 
+  tournamentResult.remove(({}), function (err) {
+    if (err) return next(err);
+    res.send('Deleted successfully!');
+  })
+
+});
+

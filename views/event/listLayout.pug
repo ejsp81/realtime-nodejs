@@ -4,59 +4,62 @@ script.
   getSoccerGame(true);        
   getEvents();
   function insertDetail(event){ 
-    var img; 
-    switch (event.type_event) {
-      case 'YELLOW_CARD':
-        img='yellow'
-        break;
-      case 'RED_CARD':
-        img='red'
-        break;
-      case 'GOAL':
-        img='balon'
-        break;  
-      default:
-      img='penal'
-        break;
-    }      
-    if (event.isLocalEvent){
-      $('.listEvents').append(`
-      <li style="width:50%">
-        <div class="msj macro">
-        <div class="avatar"><img class="img-circle" src="${event.player.team.shield}" /></div>
-          <div class="text text-l">
-            <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
-            <p>${event.player.name}</p>
-            <p><small>Minuto: ${event.time}</small></p>            
+    if ($("#selSoccerGame").val()==event.tournament_result._id) {
+      var img; 
+      switch (event.type_event) {
+        case 'YELLOW_CARD':
+          img='yellow'
+          break;
+        case 'RED_CARD':
+          img='red'
+          break;
+        case 'GOAL':
+          img='balon'
+          break;  
+        default:
+        img='PENAL'
+          break;
+      }      
+      if (event.isLocalEvent){
+        $('.listEvents').append(`
+        <li style="width:50%">
+          <div class="msj macro">
+          <div class="avatar"><img class="img-circle" src="${event.player.team.shield}" /></div>
+            <div class="text text-l">
+              <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
+              <p>${event.player.name}</p>
+              <p><small>Minuto: ${event.time}</small></p>            
+            </div>
           </div>
-        </div>
-      </li>`)                   
-    }else if(!event.isLocalEvent){
-      if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
-        console.log(event)
-        console.log($("#selSoccerGame").val())
-        if ($("#selSoccerGame").val()==event.tournament_result._id) {
+        </li>`)                   
+      }else if(!event.isLocalEvent){        
+        if ((event.type_event=='FIRST_TIME'||event.type_event=='END_GAME')){
+          var soccerGame= $('select[name="selSoccerGame"] option:selected').text();
           $('.listEvents').append(`
           <li style="width:50%;margin-left:20%">
             <div class="msj-rta macro text text-center">
               <h3>${event.type_event}</h3>
             </div>
-          </li>`) 
-        }              
-      } else{    
-        $('.listEvents').append(`
-        <li style="width:50%;margin-left:40%">
-          <div class="msj-rta macro">
-            <div class="text text-r">
-              <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
-              <p>${event.player.name}</p>
-              <p><small>Minuto: ${event.time}</small></p>
-            </div>
-          <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" src="${event.player.team.shield}" /></div>
-        </li>`)
-      }
-    } 
-     
+          </li>`)  
+          if((event.type_event=='END_GAME') && ($('#stateMatch').text()=='en vivo')){
+            messageToast("El Juego entre "+soccerGame+" Ha Finalizado");
+          }else if((event.type_event=='FIRST_TIME') && ($('#stateMatch').text()=='en vivo')){
+            messageToast("El primer tiempo ha finalizado");
+          }
+        } else{    
+          $('.listEvents').append(`
+          <li style="width:50%;margin-left:40%">
+            <div class="msj-rta macro">
+              <div class="text text-r">
+                <p>${event.type_event}<img style="width:20%;height:10%" src="/${img}.png" /></p>
+                <p>${event.player.name}</p>
+                <p><small>Minuto: ${event.time}</small></p>
+              </div>
+            <div class="avatar" style="padding:0px 0px 0px 0px !important"><img class="img-circle" src="${event.player.team.shield}" /></div>
+          </li>`)
+        }
+      } 
+    }     
   }
   var playerL,playerV,isLocal,shieldL,shieldV,idTr;
   //Seleccionar Jugador
@@ -91,13 +94,14 @@ script.
       json.then(async (team)=>{
         shieldL=team.local_team.shield;  
         shieldV=team.visitor_team.shield;  
+        $("#lblTL").text(team.local_team.name);
+        $("#lblTv").html(team.visitor_team.name);
         idTr=team._id;
         resetResult()
         addResult(team);
         local_team=team.local_team._id;
         visitor_team=team.visitor_team._id;
         var match = $('.row-match#'+team._id);
-        console.log(team)
         if(!team.is_playing){
           match.find('.badge.is_playing')
             .removeClass('badge-success').addClass('badge-secondary')
@@ -146,18 +150,7 @@ script.
     $( "#btnTeam" ).click(function(e) {
       e.preventDefault(); 
       if ( $('#stateMatch').text()=='finalizado') {
-        //alert('El Juego ha Finalizado, No es posible agregar mas eventos')
-        $.toast({ 
-          text : "El Juego ha Finalizado, No es posible agregar mas eventos", 
-          showHideTransition : 'slide',  // It can be plain, fade or slide
-          bgColor : 'blue',              // Background color for toast
-          textColor : '#eee',            // text color
-          allowToastClose : true,       // Show the close button or not
-          hideAfter : 5000,              // `false` to make it sticky or time in miliseconds to hide after
-          stack : 5,                     // `fakse` to show one stack at a time count showing the number of toasts that can be shown at once
-          textAlign : 'left',            // Alignment of text i.e. left, right, center
-          position : 'mid-center'      // bottom-left or bottom-right or bottom-center or top-left or top-right or top-center or mid-center or an object representing the left, right, top, bottom values to position the toast on page
-        })
+        messageToast("El Juego ha Finalizado, No es posible agregar mas eventos");
       } else {
         var player= $('select[name="selPlayer"] option:selected').text();
         var shield=isLocal?shieldL:shieldV,data; 
@@ -200,38 +193,7 @@ script.
       },
       body: JSON.stringify(data)
     });
-  }  
-  //Escucha cambios en 
-  socket.on('changeDetailMatch', function(event){
-    insertDetail(event);
-  });
-  socket.on('time', function(event){
-    data={
-        tournament_result: $("#selSoccerGame").val(), 
-        type_event: event, 
-        player: null, 
-        time: null, 
-        isLocalEvent:null};
-    createEvents(data)
-  });
-  //Escucha cambios en ournamentResult
-  socket.on('updateTournamentResult', function(tr){
-    if ($("#selSoccerGame").val()==tr._id) {
-      $("#currentTime").html(tr.current_time);
-      $("#goalLocal").html(tr.local_goals)
-      $("#goalVisitor").html(tr.visitor_goals)
-      var match = $('.row-match#'+tr._id);
-      if(!tr.is_playing){
-        match.find('.badge.is_playing')
-          .removeClass('badge-success').addClass('badge-secondary')
-          .html('finalizado');
-          $("#live").attr("id","notlive");
-      }
-    }
-  });
-  socket.on('insertTournamentResult', function(tr){
-    addSoccerGame(tr)
-  });
+  }   
   //llena combo Partidos
   function addSoccerGame(soccerGame){
     $("#selSoccerGame").append(`
@@ -291,4 +253,42 @@ script.
 
   function resetResult(){
      $('.row-match#'+idTr).remove();
+  }
+   //Escucha cambios en 
+  socket.on('changeDetailMatch', function(event){
+    insertDetail(event);
+  });
+  
+  //Escucha cambios en ournamentResult
+  socket.on('updateTournamentResult', function(tr){
+    if ($("#selSoccerGame").val()==tr._id) {
+      $("#currentTime").html(tr.current_time);
+      $("#goalLocal").html(tr.local_goals)
+      $("#goalVisitor").html(tr.visitor_goals)
+      var match = $('.row-match#'+tr._id);
+      if(!tr.is_playing){
+        match.find('.badge.is_playing')
+          .removeClass('badge-success').addClass('badge-secondary')
+          .html('finalizado');
+          $("#live").attr("id","notlive");
+      }
+    }
+  });
+  socket.on('insertTournamentResult', function(tr){
+    addSoccerGame(tr)
+    messageToast(tr.local_team.name+' vs ' +tr.visitor_team.name+" Ha iniciado");
+  });
+
+  function messageToast(msj){
+     $.toast({ 
+      text : msj, 
+      showHideTransition : 'slide',  // It can be plain, fade or slide
+      bgColor : 'blue',              // Background color for toast
+      textColor : '#eee',            // text color
+      allowToastClose : true,       // Show the close button or not
+      hideAfter : 5000,              // `false` to make it sticky or time in miliseconds to hide after
+      stack : 5,                     // `fakse` to show one stack at a time count showing the number of toasts that can be shown at once
+      textAlign : 'left',            // Alignment of text i.e. left, right, center
+      position : 'mid-center'      // bottom-left or bottom-right or bottom-center or top-left or top-right or top-center or mid-center or an object representing the left, right, top, bottom values to position the toast on page
+    })
   }
