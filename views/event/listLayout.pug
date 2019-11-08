@@ -6,19 +6,19 @@ script.
   function insertDetail(event){ 
     var img; 
     switch (event.type_event) {
-    case 'YELLOW_CARD':
-      img='yellow'
-      break;
-    case 'RED_CARD':
-      img='red'
-      break;
-    case 'GOAL':
-      img='balon'
-      break;  
-    default:
-    img='penal'
-      break;
-  }      
+      case 'YELLOW_CARD':
+        img='yellow'
+        break;
+      case 'RED_CARD':
+        img='red'
+        break;
+      case 'GOAL':
+        img='balon'
+        break;  
+      default:
+      img='penal'
+        break;
+    }      
     if (event.isLocalEvent){
       $('.listEvents').append(`
       <li style="width:50%">
@@ -33,7 +33,9 @@ script.
       </li>`)                   
     }else if(!event.isLocalEvent){
       if (event.type_event=='FIRST_TIME'||event.type_event=='END_GAME'){
-        if ($("#selSoccerGame").val()==event.tournament_result) {
+        console.log(event)
+        console.log($("#selSoccerGame").val())
+        if ($("#selSoccerGame").val()==event.tournament_result._id) {
           $('.listEvents').append(`
           <li style="width:50%;margin-left:20%">
             <div class="msj-rta macro text text-center">
@@ -144,7 +146,18 @@ script.
     $( "#btnTeam" ).click(function(e) {
       e.preventDefault(); 
       if ( $('#stateMatch').text()=='finalizado') {
-        alert('El Juego ha Finalizado, No es posible agregar mas eventos')
+        //alert('El Juego ha Finalizado, No es posible agregar mas eventos')
+        $.toast({ 
+          text : "El Juego ha Finalizado, No es posible agregar mas eventos", 
+          showHideTransition : 'slide',  // It can be plain, fade or slide
+          bgColor : 'blue',              // Background color for toast
+          textColor : '#eee',            // text color
+          allowToastClose : true,       // Show the close button or not
+          hideAfter : 5000,              // `false` to make it sticky or time in miliseconds to hide after
+          stack : 5,                     // `fakse` to show one stack at a time count showing the number of toasts that can be shown at once
+          textAlign : 'left',            // Alignment of text i.e. left, right, center
+          position : 'mid-center'      // bottom-left or bottom-right or bottom-center or top-left or top-right or top-center or mid-center or an object representing the left, right, top, bottom values to position the toast on page
+        })
       } else {
         var player= $('select[name="selPlayer"] option:selected').text();
         var shield=isLocal?shieldL:shieldV,data; 

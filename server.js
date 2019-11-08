@@ -13,13 +13,14 @@ app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
 var timer=3;
-var timeSoccerGame=30;
+var timeSoccerGame=90;
 
 // Bootstrap 4 y librerías necesarias
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/js', express.static(__dirname + '/node_modules/popper.js/dist'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
+app.use('/toast', express.static(__dirname + '/node_modules/jquery-toast-plugin/dist'));
 app.use('/fontawesome', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free'));
 
 //Configuracion rutas
@@ -191,10 +192,21 @@ let detail_match = require('./controllers/detail_match').DetailMatch;
   detail_match.findById(data.documentKey._id, (err, detail_match) =>{
     if (err) return console.error(err);
       io.emit('changeDetailMatch', detail_match);
+      console.log('--------------------')
+      console.log(detail_match)
+  }).populate({
+    path: 'tournament_result',
+    populate: { path: 'local_team' }
+  }).populate({
+    path: 'tournament_result',
+    populate: { path: 'visitor_team' }
+  }).populate({
+    path: 'detail_match',
+    populate: { path: 'team' }
   }).populate({
     path: 'player',
     populate: { path: 'team' }
-  });
+  })
   console.log(new Date(),'Hubo un cambio en la tabla detail_match');
   
 });
