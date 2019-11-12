@@ -47,7 +47,7 @@ router.get('/get', team_controller.get);
  *         description: Team's id
  *         in: path
  *         required: true
- *         type: integer
+ *         type: string
  *     responses:
  *       200:
  *         description: A single team
@@ -114,7 +114,7 @@ router.put('/:id/update', team_controller.team_update);
  *         description: Team's id
  *         in: path
  *         required: true
- *         type: integer
+ *         type: string
  *     responses:
  *       200:
  *         description: Successfully deleted

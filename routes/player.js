@@ -47,7 +47,7 @@ router.get('/get', player_controller.get);
  *         description: Player's id
  *         in: path
  *         required: true
- *         type: integer
+ *         type: string
  *     responses:
  *       200:
  *         description: A single player
@@ -70,7 +70,7 @@ router.get('/:id', player_controller.player_details);
  *         description: Player's id
  *         in: path
  *         required: true
- *         type: integer
+ *         type: string
  *     responses:
  *       200:
  *         description: A single player
@@ -137,7 +137,7 @@ router.put('/:id/update', player_controller.player_update);
  *         description: Player's id
  *         in: path
  *         required: true
- *         type: integer
+ *         type: string
  *     responses:
  *       200:
  *         description: Deleted successfully!
