@@ -24,6 +24,36 @@ app.use('/toast', express.static(__dirname + '/node_modules/jquery-toast-plugin/
 app.use('/fontawesome', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free'));
 
 //Configuracion rutas
+// swagger definition
+var swaggerJSDoc = require('swagger-jsdoc');
+// swagger definition
+var swaggerDefinition = {
+  info: {
+    title: 'Node Swagger API',
+    version: '1.0.0',
+    description: 'Demonstrating how to describe a RESTful API with Swagger',
+  },
+  host: '',
+  basePath: '/',
+};
+
+// options for the swagger docs
+var options = {
+  // import swaggerDefinitions
+  swaggerDefinition: swaggerDefinition,
+  // path to the API docs
+  apis: ['./routes/*.js'],
+};
+// initialize swagger-jsdoc
+var swaggerSpec = swaggerJSDoc(options);
+
+// serve swagger
+app.get('/swagger.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+
 const homeRoute = require('./routes/home'); // Imports routes for the team
 const teamRoute = require('./routes/team'); // Imports routes for the team
 const playerRoute = require('./routes/player'); // Imports routes for the team
