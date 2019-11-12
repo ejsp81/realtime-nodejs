@@ -3,7 +3,7 @@ script.
   var socket = io();
   getSoccerGame(true);        
   getEvents();
-  function insertDetail(event){ 
+  function insertDetail(event,carga){ 
     if ($("#selSoccerGame").val()==event.tournament_result._id) {
       var img; 
       switch (event.type_event) {
@@ -16,8 +16,8 @@ script.
         case 'GOAL':
           img='balon'
           break;  
-        default:
-        img='PENAL'
+        case 'PENAL':
+        img='penal'
           break;
       }      
       if (event.isLocalEvent){
@@ -41,7 +41,7 @@ script.
               <h3>${event.type_event}</h3>
             </div>
           </li>`)  
-          if((event.type_event=='END_GAME') && ($('#stateMatch').text()=='en vivo')){
+          if((event.type_event=='END_GAME') && !carga){
             messageToast("El Juego entre "+soccerGame+" Ha Finalizado");
           }else if((event.type_event=='FIRST_TIME') && ($('#stateMatch').text()=='en vivo')){
             messageToast("El primer tiempo ha finalizado");
@@ -119,7 +119,7 @@ script.
       let json =  details.json();
       json.then(async (details)=>{   
         details.forEach(detail => {
-          insertDetail(detail);
+          insertDetail(detail,true);
         });
         
       })
@@ -256,7 +256,7 @@ script.
   }
    //Escucha cambios en 
   socket.on('changeDetailMatch', function(event){
-    insertDetail(event);
+    insertDetail(event,false);
   });
   
   //Escucha cambios en ournamentResult

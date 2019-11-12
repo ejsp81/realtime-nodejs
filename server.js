@@ -12,7 +12,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 
-var timer=5;
+var timer=3;
 var timeSoccerGame=90;
 
 // Bootstrap 4 y librerías necesarias
@@ -24,6 +24,36 @@ app.use('/toast', express.static(__dirname + '/node_modules/jquery-toast-plugin/
 app.use('/fontawesome', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free'));
 
 //Configuracion rutas
+// swagger definition
+var swaggerJSDoc = require('swagger-jsdoc');
+// swagger definition
+var swaggerDefinition = {
+  info: {
+    title: 'Node Swagger API',
+    version: '1.0.0',
+    description: 'Demonstrating how to describe a RESTful API with Swagger',
+  },
+  host: '',
+  basePath: '/',
+};
+
+// options for the swagger docs
+var options = {
+  // import swaggerDefinitions
+  swaggerDefinition: swaggerDefinition,
+  // path to the API docs
+  apis: ['./routes/*.js'],
+};
+// initialize swagger-jsdoc
+var swaggerSpec = swaggerJSDoc(options);
+
+// serve swagger
+app.get('/swagger.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+
 const homeRoute = require('./routes/home'); // Imports routes for the team
 const teamRoute = require('./routes/team'); // Imports routes for the team
 const playerRoute = require('./routes/player'); // Imports routes for the team
@@ -220,10 +250,6 @@ setInterval(updateTimeMatch, timer*1000);
 
 http.listen(3000, function(){
     console.log('server is running on port :3000');
-});
-
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/layout');
 });
 
 app.get('/reset', function(req, res){
